@@ -1,0 +1,39 @@
+.landing {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    background-color: #f4f4f4;
+    background-image: url('../assets/inicioDogs.jpg');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+h1 {
+    color: #fff;
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    text-shadow: 2px 2px 4px #000000;
+}
+
+.routeH {
+    text-decoration: none;
+    color: #fff;
+    background-color: #ff9800;
+    padding: 10px 30px;
+    font-weight: bold;
+    border: 1px solid #ff9800;
+    transition: background-color 0.3s, color 0.3s;
+    display: inline-block;
+    /* Nuevo: para que el enlace se muestre en línea */
+    margin-top: 1rem;
+    /* Nuevo: espacio entre el enlace y el título en dispositivos pequeños */
+}
+
+.routeH:hover {
+    background-color: #fff;
+    color: #ff9800;
+}
