@@ -4,7 +4,7 @@ import Card from "../Card/Card";
 import CardBd from "../Card/CardBd";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { getDogs, getTemperaments, getDogTemp, getNameDogs } from "../../redux/actions";
+import { filterDogs, sortDogs, getDogs, getTemperaments, getNameDogs } from "../../redux/actions";
 import styled from "./Home.module.css"
 import image from '../assets/dogDalmata.gif'
 import Pagination from "../Pagination/Pagination";
@@ -17,20 +17,29 @@ const Home = ({ setSearchMessage, searchMessage }) => {
 
     const dispatch = useDispatch();
 
+    //Estados globales (REDUX)
     const dogs = useSelector((state) => state.dogs);
     const temperaments = useSelector((state) => state.temperaments);
+    const races = useSelector((state) => state.races);
+
+    //Estados locales para el manejo de peso , ordenamiento y temperamentos del select
+
     const [unit, setUnit] = useState('metric');
     const [bander, setBander] = useState(true);
     const [selectedTemperament, setSelectedTemperament] = useState('');
     const [sortType, setSortType] = useState('');
-    const temperamentoBd = useSelector((state) => state.dogTemperaments);
-    const races = useSelector((state) => state.races);
     const [name, setName] = useState('');
+
+    // Paginación
     const itemsPerPage = 8;
     const [currentPage, setCurrentPage] = useState(1);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+    //Volver a la página de inicio/home con el scroll en la misma posición
     const [shouldRestoreState, setShouldRestoreState] = useState(true);
+
+
 
 
 
@@ -59,7 +68,7 @@ const Home = ({ setSearchMessage, searchMessage }) => {
     useEffect(() => {
         dispatch(getDogs());
         dispatch(getTemperaments());
-        dispatch(getDogTemp());
+
     }, [dispatch]);
 
 
@@ -101,18 +110,19 @@ const Home = ({ setSearchMessage, searchMessage }) => {
         setSortType(event.target.value);
         setCurrentPage(1);
 
+        dispatch(sortDogs(event.target.value, unit));
+
     };
-
-
-    const filteredDogs = selectedTemperament
-        ? dogs.filter(dog => dog.temperament && dog.temperament.split(', ').includes(selectedTemperament))
-        : dogs;
 
 
     const uniqueTemperaments = temperaments.map(temp => temp.name.charAt(0).toUpperCase() + temp.name.slice(1));
 
+
+
+
+
     const generatePagination = () => {
-        const totalPages = Math.ceil(sortedDogs.length / itemsPerPage);
+        const totalPages = Math.ceil(sortedDogs?.length / itemsPerPage);
         const pageNumbers = [];
         for (let i = 1; i <= totalPages; i++) {
             pageNumbers.push(i);
@@ -121,47 +131,20 @@ const Home = ({ setSearchMessage, searchMessage }) => {
     };
 
 
-    const getSortedDogs = () => {
-        let sortedDogs = [...filteredDogs, ...temperamentoBd];
-        if (sortType === 'alphabetical') {
-
-            sortedDogs.sort((a, b) => a.name.localeCompare(b.name));
-
-        } else if (sortType === 'weight') {
-            sortedDogs.sort((a, b) => {
-                const aWeight = parseFloat(unit === 'metric' ? a.weight.metric : a.weight.imperial);
-                const bWeight = parseFloat(unit === 'metric' ? b.weight.metric : b.weight.imperial);
-
-                return aWeight - bWeight;
-            });
-        } else if (sortType === 'Asc') {
-            sortedDogs.sort((a, b) => a.id - b.id);
-            sortedDogs.sort((a, b) => {
-                const indexA = temperamentoBd.findIndex(temp => temp.id === a.id);
-                const indexB = temperamentoBd.findIndex(temp => temp.id === b.id);
-                return indexA - indexB;
-            });
-        } else if (sortType === 'Desc') {
-            sortedDogs.sort((a, b) => b.id - a.id);
-
-        }
-
-
-
-        return sortedDogs;
-    };
-
-    const sortedDogs = getSortedDogs();
-
+    let sortedDogs = dogs;
 
 
     const handleSelectedTemperamentChange = (newTemperament) => {
         setSelectedTemperament(newTemperament);
         setCurrentPage(1); // Reiniciar la página al cambiar el temperamento seleccionado
+        dispatch(filterDogs(newTemperament));
+
     };
 
 
-    const currentItems = sortedDogs.slice(indexOfFirstItem, indexOfLastItem);
+
+    const currentItems = sortedDogs?.slice(indexOfFirstItem, indexOfLastItem);
+
 
 
     return (
@@ -197,8 +180,8 @@ const Home = ({ setSearchMessage, searchMessage }) => {
                         value={selectedTemperament}
                         onChange={(event) => handleSelectedTemperamentChange(event.target.value)}
                     >
-                        <option value="">Todos</option>
-                        {uniqueTemperaments.map((temperament, index) => (
+                        <option value="Todos">Todos</option>
+                        {uniqueTemperaments?.map((temperament, index) => (
                             <option key={index} value={temperament}>
                                 {temperament}
                             </option>
@@ -214,7 +197,7 @@ const Home = ({ setSearchMessage, searchMessage }) => {
             </div>
 
             <div className={styled.containerCards}>
-                {bander === true && currentItems.map((dog) => (
+                {bander === true && currentItems?.map((dog) => (
                     dog.id < 265 ? <Card
                         key={dog.id}
                         id={dog.id}
@@ -241,7 +224,7 @@ const Home = ({ setSearchMessage, searchMessage }) => {
                 {/* renderizamos la imagen gif del perro dalmata cuando se esta buscando una raza en especifico y si no se encuentra ninguna raza con ese nombre, se muestra un mensaje de error */}
                 {
 
-                    !searchMessage && name.length > 0 && races.length === 0 ? <img src={image} alt="dogDalmata" className={styled.imgDogDalmata} /> : <h2 className={styled.searchMessage}>{searchMessage}</h2>
+                    !searchMessage && name?.length > 0 && races.length === 0 ? <img src={image} alt="dogDalmata" className={styled.imgDogDalmata} /> : <h2 className={styled.searchMessage}>{searchMessage}</h2>
 
                 }
 
@@ -287,6 +270,7 @@ const Home = ({ setSearchMessage, searchMessage }) => {
                 races.length === 0 && name.length === 0 && <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} generatePagination={generatePagination} />
 
             }
+
         </div >
     );
 }

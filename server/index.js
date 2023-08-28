@@ -7,13 +7,12 @@ const PORT = 3001;
 
 
 
-conn.sync({ force: true }).then(() => {
-
-    server.listen(PORT, () => {
-
-        console.log(`Server Listening on port ${PORT}`);
-
+conn.sync({ force: true })
+    .then(() => {
+        server.listen(PORT, () => {
+            console.log(`Server Listening on port ${PORT}`);
+        });
+    })
+    .catch(error => {
+        console.error('An error occurred:', error);
     });
-
-})
-

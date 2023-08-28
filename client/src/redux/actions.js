@@ -1,5 +1,24 @@
 import axios from "axios";
-import { GET_DETAILS_BD, CREATED_BREED, GET_DOGS, GET_NAME_DOGS, CLEAR_RACES, GET_DETAIL, GET_TEMPERAMENTS, GET_DOGTEMP } from "./actions-types";
+import { FILTER_DOGS, SORT_DOGS, GET_DETAILS_BD, CREATED_BREED, GET_DOGS, GET_NAME_DOGS, CLEAR_RACES, GET_DETAIL, GET_TEMPERAMENTS } from "./actions-types";
+
+
+export const filterDogs = (temperaments) => {
+
+    return {
+        type: FILTER_DOGS,
+        payload: temperaments
+    }
+
+}
+
+export const sortDogs = (order, unit) => {
+
+    return {
+        type: SORT_DOGS,
+        payload: { order, unit }
+    }
+
+}
 
 
 export const createdBreed = (sendData) => {
@@ -25,48 +44,23 @@ export const createdBreed = (sendData) => {
 }
 
 
-export const getDogTemp = () => {
 
-    const endPoint = `http://localhost:3001/thedogs/dogs/temperaments`
-
-    return async (dispatch) => {
-
-        try {
-
-            const { data } = await axios(endPoint);
-
-            return dispatch({
-                type: GET_DOGTEMP,
-                payload: data
-            })
-
-        } catch (error) {
-
-            console.log(error.message);
-
-        }
-
-
-    }
-
-
-}
 
 export const getDogs = () => {
     const endPoint = `http://localhost:3001/thedogs/dogs`;
-
+    const endPoint2 = `http://localhost:3001/thedogs/dogs/temperaments`;
 
     return async (dispatch) => {
 
         try {
 
             const { data } = await axios(endPoint);
-
+            const data2 = await axios(endPoint2);
             if (!data.length) throw new Error("No se encontraron perros");
 
             return dispatch({
                 type: GET_DOGS,
-                payload: data
+                payload: { data, data2 }
             })
 
         } catch (error) {

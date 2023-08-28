@@ -21,9 +21,15 @@ const getDogsName = async (req, res) => {
 
 
         // Filtra los datos de la API para eliminar aquellos sin imagen, temperamentos, altura o peso u otra propiedad que no contenga. 
-        const filteredApiData = apiData.filter(dog => dog.image && dog.temperament && dog.height && dog.weight && dog.life_span && dog.reference_image_id && dog.name);
-
-
+        const filteredApiData = apiData.filter(dog =>
+            dog.image &&
+            dog.temperament &&
+            dog.height &&
+            /^\d/.test(dog.weight.metric) && // Verificar si el primer carácter es un número
+            dog.life_span &&
+            dog.reference_image_id &&
+            dog.name
+        );
         // Si se proporciona un nombre en la consulta, buscamos solo esa raza 
         const dbDogs = await Dogs.findAll({
             where: {
@@ -63,6 +69,7 @@ const getDogsName = async (req, res) => {
         if (combinedResults.length === 0) {
             return res.status(404).json({ error: 'Races Not Found' });
         }
+
         // finalmente devolvemos los resultados combinados por medio de la respuesta del servidor 
         res.status(200).json(combinedResults);
 

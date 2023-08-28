@@ -1,4 +1,4 @@
-import { GET_DETAILS_BD, CREATED_BREED, GET_DOGS, GET_NAME_DOGS, CLEAR_RACES, GET_DETAIL, GET_TEMPERAMENTS, GET_DOGTEMP } from "./actions-types";
+import { FILTER_DOGS, SORT_DOGS, GET_DETAILS_BD, CREATED_BREED, GET_DOGS, GET_NAME_DOGS, CLEAR_RACES, GET_DETAIL, GET_TEMPERAMENTS } from "./actions-types";
 
 const initialState = {
     dogs: [],
@@ -7,15 +7,50 @@ const initialState = {
     detailDog: {},
     dogTemperaments: [],
     newBreed: {},
-    detailDogBd: {}
+    detailDogBd: {},
+    allDogs: [],
 }
 
 
 
 const reducer = (state = initialState, { type, payload }) => {
 
-
     switch (type) {
+
+        case FILTER_DOGS:
+            let filteredDogs;
+
+            if (payload === "Todos") {
+                filteredDogs = state.allDogs;
+            } else {
+                filteredDogs = state.allDogs.filter(dog =>
+                    (dog.temperament && dog.temperament?.split(', ').includes(payload)) ||
+                    (dog.id > 265 && dog.temperaments && dog.temperaments.includes(payload))
+                );
+            }
+
+            return {
+                ...state,
+                dogs: filteredDogs
+            };
+
+
+
+
+        case SORT_DOGS:
+            let copyDogs = [...state.dogs];
+            const { order, unit } = payload;
+            return {
+                ...state,
+                dogs: order === 'alphabetical' ? copyDogs.sort((a, b) => a.name.localeCompare(b.name)) : order === 'weight' ? copyDogs.sort((a, b) => {
+                    const aWeight = parseFloat(unit === 'metric' ? a.weight.metric : a.weight.imperial);
+                    const bWeight = parseFloat(unit === 'metric' ? b.weight.metric : b.weight.imperial);
+
+                    return aWeight - bWeight;
+                }) : order === "Asc" ? copyDogs.sort((a, b) => a.id - b.id) : order === "Desc" ? copyDogs.sort((a, b) => b.id - a.id) : state.allDogs
+
+            }
+
 
         case GET_DETAILS_BD:
 
@@ -32,16 +67,17 @@ const reducer = (state = initialState, { type, payload }) => {
             }
 
         case GET_DOGS:
+
+            const { data, data2 } = payload;
+            const data3 = data2.data
+
             return {
                 ...state,
-                dogs: payload,
+                dogs: [...data, ...data3],
+                allDogs: [...data, ...data3],
             };
 
-        case GET_DOGTEMP:
-            return {
-                ...state,
-                dogTemperaments: payload,
-            };
+
         case GET_NAME_DOGS:
 
             return {
@@ -53,7 +89,8 @@ const reducer = (state = initialState, { type, payload }) => {
             return {
                 ...state,
                 races: [],
-                detailDog: {}
+                detailDog: {},
+
             };
         case GET_DETAIL:
             return {
