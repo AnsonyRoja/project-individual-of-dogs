@@ -90,6 +90,7 @@ const Home = ({ setSearchMessage, searchMessage }) => {
             setShouldRestoreState(false);
         }
 
+        // Guardar el estado de la página al salir de la página de inicio/home
         const saveState = () => {
             const newState = {
                 scrollPosition: window.scrollY,
