@@ -43,6 +43,7 @@ const Home = ({ setSearchMessage, searchMessage }) => {
 
 
 
+
     const onSearch = (name) => {
 
         dispatch(getNameDogs(name))
@@ -54,7 +55,7 @@ const Home = ({ setSearchMessage, searchMessage }) => {
                 }
             })
             .catch((error) => {
-                console.error('Error en la búsqueda:', error);
+                return ('Error en la búsqueda:', error);
             });
     };
 
@@ -65,11 +66,17 @@ const Home = ({ setSearchMessage, searchMessage }) => {
     };
 
 
+
     useEffect(() => {
-        dispatch(getDogs());
+
+        if (selectedTemperament === 'Todos') {
+            dispatch(getDogs());
+        }
+
+
         dispatch(getTemperaments());
 
-    }, [dispatch]);
+    }, [dispatch, selectedTemperament]);
 
 
 
@@ -87,6 +94,15 @@ const Home = ({ setSearchMessage, searchMessage }) => {
                 setCurrentPage(savedState.currentPage);
             }
 
+            if (savedState.sortType) {
+                setSortType(savedState.sortType);
+            }
+
+            if (savedState.selectedTemperament) {
+                setSelectedTemperament(savedState.selectedTemperament);
+            }
+
+
             setShouldRestoreState(false);
         }
 
@@ -95,9 +111,14 @@ const Home = ({ setSearchMessage, searchMessage }) => {
             const newState = {
                 scrollPosition: window.scrollY,
                 currentPage: currentPage,
+                sortType: sortType,
+                selectedTemperament: selectedTemperament,
+
             };
             localStorage.setItem("homeState", JSON.stringify(newState));
         };
+
+
 
         window.addEventListener("beforeunload", saveState);
         return () => {
@@ -105,7 +126,7 @@ const Home = ({ setSearchMessage, searchMessage }) => {
 
             window.removeEventListener("beforeunload", saveState);
         };
-    }, [currentPage, shouldRestoreState]);
+    }, [currentPage, shouldRestoreState, sortType, selectedTemperament]);
 
     const handleSortChange = (event) => {
         setSortType(event.target.value);
@@ -116,7 +137,8 @@ const Home = ({ setSearchMessage, searchMessage }) => {
     };
 
 
-    const uniqueTemperaments = temperaments.map(temp => temp.name.charAt(0).toUpperCase() + temp.name.slice(1));
+    const uniqueTemperaments = temperaments.map(temp =>
+        temp.name.charAt(0).toUpperCase() + temp.name.slice(1));
 
 
 
@@ -131,8 +153,8 @@ const Home = ({ setSearchMessage, searchMessage }) => {
         return pageNumbers;
     };
 
-
     let sortedDogs = dogs;
+
 
 
     const handleSelectedTemperamentChange = (newTemperament) => {
@@ -145,7 +167,6 @@ const Home = ({ setSearchMessage, searchMessage }) => {
 
 
     const currentItems = sortedDogs?.slice(indexOfFirstItem, indexOfLastItem);
-
 
 
     return (
@@ -209,7 +230,7 @@ const Home = ({ setSearchMessage, searchMessage }) => {
                         reference_image_id={dog.reference_image_id}
                         unit={unit}
 
-                    /> : (dog.id > 265 && selectedTemperament === '') || (dog.temperaments?.includes(selectedTemperament)) ?
+                    /> : (dog.id > 265) || (dog.temperaments?.includes(selectedTemperament)) ?
                         dogs.length > 0 && <CardBd key={dog.id}
                             id={dog.id}
                             name={dog.name}

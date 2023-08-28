@@ -8,6 +8,7 @@ import Detail from './components/Detail/Detail';
 import CrearRaza from './components/Form/CrearRaza';
 import Details from './components/Detail/Details';
 
+
 function App() {
 
   const [searchMessage, setSearchMessage] = useState('');

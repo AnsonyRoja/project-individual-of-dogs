@@ -21,7 +21,7 @@ const reducer = (state = initialState, { type, payload }) => {
             let filteredDogs;
 
             if (payload === "Todos") {
-                filteredDogs = state.allDogs;
+                filteredDogs = [...state.allDogs];
             } else {
                 filteredDogs = state.allDogs.filter(dog =>
                     (dog.temperament && dog.temperament?.split(', ').includes(payload)) ||
@@ -70,11 +70,11 @@ const reducer = (state = initialState, { type, payload }) => {
 
             const { data, data2 } = payload;
             const data3 = data2.data
-
+            const dataCopy = [...data, ...data3]
             return {
                 ...state,
-                dogs: [...data, ...data3],
-                allDogs: [...data, ...data3],
+                dogs: dataCopy,
+                allDogs: dataCopy,
             };
 
 

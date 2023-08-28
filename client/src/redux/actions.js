@@ -65,7 +65,7 @@ export const getDogs = () => {
 
         } catch (error) {
 
-            console.log(error.message);
+            return error.message;
 
         }
 
@@ -177,7 +177,7 @@ export const getTemperaments = () => {
 
         } catch (error) {
 
-            console.log(error.message);
+            return error.message;
 
 
         }
