@@ -9,7 +9,7 @@ const CardBd = ({ id, image, name, temperaments, weight, unit }) => {
         <div className={styles.card}>
 
             <div className={styles.imageContainer}>
-                <Link to={`/dogs/${id}`}>
+                <Link to={`/dogss/${id}`}>
                     <img className={styles.image} src={image} alt={name} />
                 </Link>
             </div>

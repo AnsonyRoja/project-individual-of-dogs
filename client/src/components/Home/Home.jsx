@@ -11,7 +11,6 @@ import Pagination from "../Pagination/Pagination";
 
 
 
-
 const Home = ({ setSearchMessage, searchMessage }) => {
 
 
@@ -35,6 +34,7 @@ const Home = ({ setSearchMessage, searchMessage }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
 
     //Volver a la página de inicio/home con el scroll en la misma posición
     const [shouldRestoreState, setShouldRestoreState] = useState(true);
@@ -119,12 +119,12 @@ const Home = ({ setSearchMessage, searchMessage }) => {
         };
 
 
-
+        // Evento para guardar el estado de la página al salir de la página de inicio/home
         window.addEventListener("beforeunload", saveState);
         return () => {
+
             saveState();
 
-            window.removeEventListener("beforeunload", saveState);
         };
     }, [currentPage, shouldRestoreState, sortType, selectedTemperament]);
 
@@ -145,6 +145,7 @@ const Home = ({ setSearchMessage, searchMessage }) => {
 
 
     const generatePagination = () => {
+        // Calculamos la cantidad de páginas que tendrá la paginación
         const totalPages = Math.ceil(sortedDogs?.length / itemsPerPage);
         const pageNumbers = [];
         for (let i = 1; i <= totalPages; i++) {
@@ -153,7 +154,10 @@ const Home = ({ setSearchMessage, searchMessage }) => {
         return pageNumbers;
     };
 
-    let sortedDogs = dogs;
+
+
+    let sortedDogs
+    races?.length > 0 && name.length > 0 ? sortedDogs = races : sortedDogs = dogs;
 
 
 
@@ -167,7 +171,6 @@ const Home = ({ setSearchMessage, searchMessage }) => {
 
 
     const currentItems = sortedDogs?.slice(indexOfFirstItem, indexOfLastItem);
-
 
     return (
         <div className={styled.firstContainer}>
@@ -230,7 +233,7 @@ const Home = ({ setSearchMessage, searchMessage }) => {
                         reference_image_id={dog.reference_image_id}
                         unit={unit}
 
-                    /> : (dog.id > 265) || (dog.temperaments?.includes(selectedTemperament)) ?
+                    /> : dog.id > 265 ?
                         dogs.length > 0 && <CardBd key={dog.id}
                             id={dog.id}
                             name={dog.name}
@@ -250,11 +253,11 @@ const Home = ({ setSearchMessage, searchMessage }) => {
 
                 }
 
-                <div className={styled.container}>
-                    {name.length > 0 ? races.map((race) => {
 
-                        return (
-                            race.id) < 265 ? <div className={styled.card} key={race.id}>
+                {races?.length > 0 ? currentItems.map((race) => {
+
+                    return (
+                        race.id < 265 ? <div className={styled.card} key={race.id}>
 
                             <a href={`/dog/${race.reference_image_id}`}>
                                 <img className={styled.image} src={race.image?.url} alt={race.name} />
@@ -268,30 +271,33 @@ const Home = ({ setSearchMessage, searchMessage }) => {
                         </div> : <CardBd
 
                             key={race.id}
+                            id={race.id}
                             image={race.image}
                             name={race.name}
                             temperaments={race.temperaments}
+                            weight={race.weight.metric}
                             unit={unit}
 
                         />
 
+                    )
+
+
+                }) : null}
 
 
 
-                    }) : null}
-
-
-
-                </div>
 
 
 
 
             </div>
-            {
-                races.length === 0 && name.length === 0 && <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} generatePagination={generatePagination} />
 
+            {
+
+                (bander === true || races?.length > 0) && <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} generatePagination={generatePagination} />
             }
+
 
         </div >
     );

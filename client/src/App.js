@@ -34,8 +34,8 @@ function App() {
 
 
       <Routes>
-        <Route path='/dogs/:id' element={<Details setSearchMessage={setSearchMessage} />} />
-        <Route path="/dog/:id" element={<Detail setSearchMessage={setSearchMessage} />} />
+        <Route path='/dogss/:id' element={<Details setSearchMessage={setSearchMessage} />} />
+        <Route path="/dog/:idRaza" element={<Detail setSearchMessage={setSearchMessage} />} />
         <Route path="/" element={<LandingPage />} />
         <Route path='/home' element={<Home searchMessage={searchMessage} setSearchMessage={setSearchMessage} />} />
         <Route path='/crear-raza' element={<CrearRaza />} />

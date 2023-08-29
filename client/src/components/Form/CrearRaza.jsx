@@ -166,7 +166,7 @@ const CrearRaza = () => {
     const uniqueTemperaments = getemperaments.map(temp => temp.name.charAt(0).toUpperCase() + temp.name.slice(1));
 
     return (
-        <div>
+        <div className={styled.container}>
             <form className={styled.containerForm} onSubmit={handleSubmit}>
                 <Link className={styled.backToHome} to='/home'>Regresar</Link>
                 <h2 className={styled.title}>Crear una nueva raza</h2>

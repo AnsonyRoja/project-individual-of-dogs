@@ -1,6 +1,8 @@
 import styled from './Pagination.module.css';
 
 const Pagination = ({ currentPage, setCurrentPage, generatePagination }) => {
+
+
     return (
         <div className={styled.pagination}>
             <button
