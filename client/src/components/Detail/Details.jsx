@@ -3,14 +3,15 @@ import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { getDetailBd, clearRaces } from "../../redux/actions";
 import styles from "./Detail.module.css";
-
-
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const Details = ({ setSearchMessage }) => {
-
+    const navigate = useNavigate();
     const { id } = useParams();
     const dispatch = useDispatch();
     const detailDog = useSelector((state) => state.detailDogBd);
+
 
     useEffect(() => {
         dispatch(getDetailBd(id));
@@ -27,7 +28,7 @@ const Details = ({ setSearchMessage }) => {
     return (
         <div className={styles.backg}>
             <div className={styles.container}>
-                <Link to="/home" className={styles.backLink} >
+                <Link to="/home" className={styles.backLink} onClick={() => navigate(-1)} >
                     ← Regresar
                 </Link>
                 {breed ? (

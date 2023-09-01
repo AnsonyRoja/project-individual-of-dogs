@@ -11,6 +11,10 @@ const validationCreateBreed = (userData) => {
     if (!/^[a-zA-Z\s]+$/.test(userData.name)) {
         errors.name = 'El nombre debe contener solo letras.';
     }
+    if (userData.name.length > 20) {
+
+        errors.name = 'El nombre no puede tener mas de 20 caracteres.';
+    }
 
     if (!/^https:\/\/.*\.(jpg|png)(\?.*)?$/.test(userData.image)) {
 

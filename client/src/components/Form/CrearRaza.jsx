@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getTemperaments, createdBreed } from '../../redux/actions';
+import { clearRaces, getTemperaments, createdBreed } from '../../redux/actions';
 import styled from './CrearRaza.module.css';
 import { Link } from 'react-router-dom';
 import validationCreateBreed from '../Validations/formcCreateBreed'
 
+
 const CrearRaza = () => {
+
     const [registrationSuccess, setRegistrationSuccess] = useState(false);
     const [errors, setErrors] = useState({});
     const [temperaments, setTemperaments] = useState([]);
@@ -24,6 +26,26 @@ const CrearRaza = () => {
         temperaments: [],
 
     });
+
+    const areAllFieldsFilled = () => {
+        const requiredFields = [
+            'name',
+            'heightMin',
+            'heightMax',
+            'weightMin',
+            'weightMax',
+            'lifeSpanMin',
+            'lifeSpanMax',
+            'image'
+        ];
+
+        const allFieldsFilled = requiredFields.every(field => {
+            const value = userData[field];
+            return value !== undefined && value !== '';
+        });
+
+        return allFieldsFilled && temperaments.length > 0;
+    };
 
     const convertCmToInches = (value) => Math.round(parseInt(value) * 0.39370);
     const convertKgToPounds = (value) => Math.round(parseInt(value) * 2.20462);
@@ -65,6 +87,10 @@ const CrearRaza = () => {
 
     useEffect(() => {
         dispatch(getTemperaments());
+        return () => {
+
+            dispatch(clearRaces());
+        }
     }, [dispatch]);
 
     const handleTemperamentChange = (event) => {
@@ -78,6 +104,7 @@ const CrearRaza = () => {
 
         setRegistrationSuccess(false);
 
+
     };
 
     const handleAddTemperament = () => {
@@ -87,7 +114,7 @@ const CrearRaza = () => {
                 ...userData,
                 temperaments: [...userData.temperaments, selectedTemperament]
             });
-            setSelectedTemperament('');
+
         }
     };
 
@@ -168,7 +195,7 @@ const CrearRaza = () => {
     return (
         <div className={styled.container}>
             <form className={styled.containerForm} onSubmit={handleSubmit}>
-                <Link className={styled.backToHome} to='/home'>Regresar</Link>
+                <Link className={styled.backToHome} to='/home' >Regresar</Link>
                 <h2 className={styled.title}>Crear una nueva raza</h2>
                 <div className={styled.formGroup}>
                     <label className={styled.label} >Nombre:</label>
@@ -224,7 +251,8 @@ const CrearRaza = () => {
                     </ul>
                 </div>
                 {registrationSuccess && <p className={styled.successMessage}>Registro exitoso</p>}
-                <button className={styled.submitButton} type="submit" disabled={Object.keys(errors).length > 0}>
+                <button className={styled.submitButton} type="submit" disabled={Object.keys(errors).length > 0 || !areAllFieldsFilled()}
+                >
                     Crear Raza
                 </button>
             </form>

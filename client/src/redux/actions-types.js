@@ -7,3 +7,5 @@ export const CREATED_BREED = 'CREATED_BREED';
 export const GET_DETAILS_BD = 'GET_DETAILS_BD';
 export const SORT_DOGS = 'SORT_DOGS';
 export const FILTER_DOGS = 'FILTER_DOGS';
+export const CLEAR_DOGS = 'CLEAR_DOGS';
+

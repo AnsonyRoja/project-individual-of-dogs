@@ -1,7 +1,16 @@
 import axios from "axios";
-import { FILTER_DOGS, SORT_DOGS, GET_DETAILS_BD, CREATED_BREED, GET_DOGS, GET_NAME_DOGS, CLEAR_RACES, GET_DETAIL, GET_TEMPERAMENTS } from "./actions-types";
+import { CLEAR_DOGS, FILTER_DOGS, SORT_DOGS, GET_DETAILS_BD, CREATED_BREED, GET_DOGS, GET_NAME_DOGS, CLEAR_RACES, GET_DETAIL, GET_TEMPERAMENTS } from "./actions-types";
 
 
+export const clearDogs = () => {
+
+    return {
+
+        type: CLEAR_DOGS,
+
+    }
+
+}
 export const filterDogs = (temperaments) => {
 
     return {

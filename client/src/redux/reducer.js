@@ -1,4 +1,4 @@
-import { FILTER_DOGS, SORT_DOGS, GET_DETAILS_BD, CREATED_BREED, GET_DOGS, GET_NAME_DOGS, CLEAR_RACES, GET_DETAIL, GET_TEMPERAMENTS } from "./actions-types";
+import { CLEAR_DOGS, FILTER_DOGS, SORT_DOGS, GET_DETAILS_BD, CREATED_BREED, GET_DOGS, GET_NAME_DOGS, CLEAR_RACES, GET_DETAIL, GET_TEMPERAMENTS } from "./actions-types";
 
 const initialState = {
     dogs: [],
@@ -17,6 +17,12 @@ const reducer = (state = initialState, { type, payload }) => {
 
     switch (type) {
 
+        case CLEAR_DOGS:
+            return {
+                ...state,
+                dogs: [],
+            }
+
         case FILTER_DOGS:
             let filteredDogs;
 
@@ -34,9 +40,6 @@ const reducer = (state = initialState, { type, payload }) => {
                 dogs: filteredDogs
             };
 
-
-
-
         case SORT_DOGS:
             let copyDogs = [...state.dogs];
             const { order, unit } = payload;
@@ -47,7 +50,7 @@ const reducer = (state = initialState, { type, payload }) => {
                     const bWeight = parseFloat(unit === 'metric' ? b.weight.metric : b.weight.imperial);
 
                     return aWeight - bWeight;
-                }) : order === "Asc" ? copyDogs.sort((a, b) => a.id - b.id) : order === "Desc" ? copyDogs.sort((a, b) => b.id - a.id) : state.allDogs
+                }) : order === "Asc" ? copyDogs.sort((a, b) => a.id - b.id) : order === "Desc" ? copyDogs.sort((a, b) => b.id - a.id) : state.dogs
 
             }
 
@@ -90,6 +93,7 @@ const reducer = (state = initialState, { type, payload }) => {
                 ...state,
                 races: [],
                 detailDog: {},
+
 
             };
         case GET_DETAIL:

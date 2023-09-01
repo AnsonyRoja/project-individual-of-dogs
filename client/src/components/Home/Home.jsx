@@ -1,13 +1,12 @@
 import SearchBar from "../SearchBar/SearchBar";
 import { Helmet } from "react-helmet";
-import Card from "../Card/Card";
-import CardBd from "../Card/CardBd";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { filterDogs, sortDogs, getDogs, getTemperaments, getNameDogs } from "../../redux/actions";
+import { clearDogs, filterDogs, sortDogs, getDogs, getTemperaments, getNameDogs } from "../../redux/actions";
 import styled from "./Home.module.css"
-import image from '../assets/dogDalmata.gif'
 import Pagination from "../Pagination/Pagination";
+import { persistor } from '../../redux/store'
+import renderDogCard from "./renderDogCard";
 
 
 
@@ -38,11 +37,11 @@ const Home = ({ setSearchMessage, searchMessage }) => {
 
     //Volver a la página de inicio/home con el scroll en la misma posición
     const [shouldRestoreState, setShouldRestoreState] = useState(true);
+    const [searchResults, setSearchResults] = useState([]); // Estado local para almacenar resultados de búsqueda
 
+    console.log(selectedTemperament)
 
-
-
-
+    console.log(dogs)
 
     const onSearch = (name) => {
 
@@ -50,41 +49,68 @@ const Home = ({ setSearchMessage, searchMessage }) => {
             .then((res) => {
                 if (res === undefined) {
                     setSearchMessage('No se encontró ninguna raza con ese nombre');
+                    setSearchResults([]); // Restablecer los resultados de búsqueda
+
                 } else {
                     setSearchMessage('');
+                    setShouldRestoreState(false);
+                    localStorage.setItem('searchTerm', name);
+                    dispatch(clearDogs());
+                    setBander(false);
+                    if (bander === false) {
+                        setCurrentPage(1)
+                    }
                 }
             })
             .catch((error) => {
                 return ('Error en la búsqueda:', error);
             });
+
+
+
     };
 
 
 
     const handleUnitChange = (newUnit) => {
         setUnit(newUnit);
+        if (dogs.length === 0) {
+            dispatch(getDogs());
+        }
     };
 
 
 
     useEffect(() => {
 
-        if (selectedTemperament === 'Todos') {
-            dispatch(getDogs());
-        }
+        if (races.length > 0 && dogs.length > 0 && name.length > 0) {
 
+            dispatch(clearDogs());
+
+        } else if (dogs.length === 0 && name.length === 0) {
+
+            dispatch(getDogs());
+
+        }
 
         dispatch(getTemperaments());
 
-    }, [dispatch, selectedTemperament]);
+        persistor.purge();
+
+        if (name.length === 0) {
+            setSelectedTemperament('');
+        }
+
+    }, [name]);
 
 
 
     // Restaurar el estado de la página al volver a la página de inicio/home
     useEffect(() => {
 
-        if (shouldRestoreState) {
+        if (shouldRestoreState && !searchResults.length) {
             const savedState = JSON.parse(localStorage.getItem("homeState")) || {};
+            const savedSearchTerm = localStorage.getItem('searchTerm');
 
             if (savedState.scrollPosition) {
                 window.scrollTo(0, savedState.scrollPosition);
@@ -97,13 +123,24 @@ const Home = ({ setSearchMessage, searchMessage }) => {
             if (savedState.sortType) {
                 setSortType(savedState.sortType);
             }
+            if (savedState.unit) {
+
+                setUnit(savedState.unit);
+            }
+
 
             if (savedState.selectedTemperament) {
                 setSelectedTemperament(savedState.selectedTemperament);
             }
 
+            if (savedSearchTerm) {
+                // Realiza la búsqueda con el término almacenado
+                onSearch(savedSearchTerm);
+            }
+
 
             setShouldRestoreState(false);
+
         }
 
         // Guardar el estado de la página al salir de la página de inicio/home
@@ -113,12 +150,13 @@ const Home = ({ setSearchMessage, searchMessage }) => {
                 currentPage: currentPage,
                 sortType: sortType,
                 selectedTemperament: selectedTemperament,
-
+                unit: unit
             };
             localStorage.setItem("homeState", JSON.stringify(newState));
         };
 
 
+        console.log(races)
         // Evento para guardar el estado de la página al salir de la página de inicio/home
         window.addEventListener("beforeunload", saveState);
         return () => {
@@ -126,7 +164,7 @@ const Home = ({ setSearchMessage, searchMessage }) => {
             saveState();
 
         };
-    }, [currentPage, shouldRestoreState, sortType, selectedTemperament]);
+    }, [currentPage, unit, shouldRestoreState, sortType, selectedTemperament]);
 
     const handleSortChange = (event) => {
         setSortType(event.target.value);
@@ -134,7 +172,9 @@ const Home = ({ setSearchMessage, searchMessage }) => {
 
         dispatch(sortDogs(event.target.value, unit));
 
+
     };
+
 
 
     const uniqueTemperaments = temperaments.map(temp =>
@@ -156,21 +196,26 @@ const Home = ({ setSearchMessage, searchMessage }) => {
 
 
 
-    let sortedDogs
-    races?.length > 0 && name.length > 0 ? sortedDogs = races : sortedDogs = dogs;
-
 
 
     const handleSelectedTemperamentChange = (newTemperament) => {
         setSelectedTemperament(newTemperament);
         setCurrentPage(1); // Reiniciar la página al cambiar el temperamento seleccionado
         dispatch(filterDogs(newTemperament));
+        setSortType(''); // Reiniciar el ordenamiento al cambiar el temperamento seleccionado
+        localStorage.removeItem('searchTerm');
+
 
     };
 
 
+    let sortedDogs;
 
-    const currentItems = sortedDogs?.slice(indexOfFirstItem, indexOfLastItem);
+    races.length ? sortedDogs = races : sortedDogs = dogs;
+
+    let currentItems = sortedDogs?.slice(indexOfFirstItem, indexOfLastItem);
+
+    if (searchMessage) currentItems.length = 0;
 
     return (
         <div className={styled.firstContainer}>
@@ -214,7 +259,7 @@ const Home = ({ setSearchMessage, searchMessage }) => {
                     </select>
                 </div>
                 <div className={styled.searchBar}>
-                    <SearchBar setBander={setBander} setName={setName} setCurrentPage={setCurrentPage} setSearchMessage={setSearchMessage} name={name} onSearch={onSearch} />
+                    <SearchBar setBander={setBander} handleSelectedTemperamentChange={handleSelectedTemperamentChange} setName={setName} setCurrentPage={setCurrentPage} setSearchMessage={setSearchMessage} name={name} onSearch={onSearch} />
                 </div>
                 <div className={styled.crear}>
                     <a href="/crear-raza"><button>Crear</button></a>
@@ -222,74 +267,14 @@ const Home = ({ setSearchMessage, searchMessage }) => {
             </div>
 
             <div className={styled.containerCards}>
-                {bander === true && currentItems?.map((dog) => (
-                    dog.id < 265 ? <Card
-                        key={dog.id}
-                        id={dog.id}
-                        name={dog.name}
-                        image={dog.image.url}
-                        weight={unit === 'metric' ? dog.weight.metric : dog.weight.imperial}
-                        temperaments={dog?.temperament}
-                        reference_image_id={dog.reference_image_id}
-                        unit={unit}
+                {bander === true && currentItems?.map((dog) => (renderDogCard(dog, unit)))}
 
-                    /> : dog.id > 265 ?
-                        dogs.length > 0 && <CardBd key={dog.id}
-                            id={dog.id}
-                            name={dog.name}
-                            image={dog.image}
-                            weight={unit === 'metric' ? dog.weight.metric : dog.weight.imperial}
-                            temperaments={dog.temperaments}
-                            unit={unit}
-                        />
-                        : null
-
-                ))}
-
-                {/* renderizamos la imagen gif del perro dalmata cuando se esta buscando una raza en especifico y si no se encuentra ninguna raza con ese nombre, se muestra un mensaje de error */}
                 {
-
-                    !searchMessage && name?.length > 0 && races.length === 0 ? <img src={image} alt="dogDalmata" className={styled.imgDogDalmata} /> : <h2 className={styled.searchMessage}>{searchMessage}</h2>
+                    searchMessage && <h2 className={styled.searchMessage}>{searchMessage}</h2>
 
                 }
 
-
-                {races?.length > 0 ? currentItems.map((race) => {
-
-                    return (
-                        race.id < 265 ? <div className={styled.card} key={race.id}>
-
-                            <a href={`/dog/${race.reference_image_id}`}>
-                                <img className={styled.image} src={race.image?.url} alt={race.name} />
-                            </a>
-                            <h2 className={styled.name}>{race.name}</h2>
-                            <h3 className={styled.temperament}>{race.temperament}</h3>
-                            <h2 className={styled.weight}>{unit === 'metric' ? race.weight.metric : race.weight.imperial}{unit === 'metric' ? <span>Kg</span> : <span>Lbs</span>}</h2>
-
-
-
-                        </div> : <CardBd
-
-                            key={race.id}
-                            id={race.id}
-                            image={race.image}
-                            name={race.name}
-                            temperaments={race.temperaments}
-                            weight={race.weight.metric}
-                            unit={unit}
-
-                        />
-
-                    )
-
-
-                }) : null}
-
-
-
-
-
-
+                {races?.length > 0 && currentItems.map((race) => (renderDogCard(race, unit)))}
 
             </div>
 
@@ -303,5 +288,6 @@ const Home = ({ setSearchMessage, searchMessage }) => {
     );
 }
 
-export default Home;
 
+
+export default Home;
