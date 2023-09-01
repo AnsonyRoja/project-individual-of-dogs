@@ -93,13 +93,11 @@ const Home = ({ setSearchMessage, searchMessage }) => {
 
         }
 
-        dispatch(getTemperaments());
-
+        if (temperaments.length === 0) {
+            dispatch(getTemperaments());
+        }
         persistor.purge();
 
-        if (name.length === 0) {
-            setSelectedTemperament('');
-        }
 
     }, [name, dogs.length]);
 
@@ -259,7 +257,7 @@ const Home = ({ setSearchMessage, searchMessage }) => {
                     </select>
                 </div>
                 <div className={styled.searchBar}>
-                    <SearchBar setBander={setBander} handleSelectedTemperamentChange={handleSelectedTemperamentChange} setName={setName} setCurrentPage={setCurrentPage} setSearchMessage={setSearchMessage} name={name} onSearch={onSearch} />
+                    <SearchBar setBander={setBander} setSelectedTemperament={setSelectedTemperament} handleSelectedTemperamentChange={handleSelectedTemperamentChange} setName={setName} setCurrentPage={setCurrentPage} setSearchMessage={setSearchMessage} name={name} onSearch={onSearch} />
                 </div>
                 <div className={styled.crear}>
                     <a href="/crear-raza"><button>Crear</button></a>

@@ -4,7 +4,7 @@ import { clearRaces } from '../../redux/actions';
 import { useEffect } from 'react';
 
 
-export default function SearchBar({ name, setName, handleSelectedTemperamentChange, setBander, onSearch, setSearchMessage, setCurrentPage }) {
+export default function SearchBar({ setSelectedTemperament, name, setName, handleSelectedTemperamentChange, setBander, onSearch, setSearchMessage, setCurrentPage }) {
     const dispatch = useDispatch();
 
     // Estado local para el valor del input
@@ -27,6 +27,8 @@ export default function SearchBar({ name, setName, handleSelectedTemperamentChan
             dispatch(clearRaces());
             setCurrentPage(1);
             localStorage.removeItem("searchTerm");
+            setSelectedTemperament('Todos');
+
         }
 
         if (newValue.length > 0) {
