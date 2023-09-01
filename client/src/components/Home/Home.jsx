@@ -101,7 +101,7 @@ const Home = ({ setSearchMessage, searchMessage }) => {
             setSelectedTemperament('');
         }
 
-    }, [name]);
+    }, [name, dogs.length]);
 
 
 
